@@ -105,9 +105,10 @@ for sc in ("S1", "S3"):
         rob.append(f"| {sc} | {N} | " + " | ".join(cells) + " |")
 F["TABLE_ROB"] = "\n".join(rob)
 
-t = open(f"{HERE}/PAPER_DRAFT_template.md").read()
-for k, v in F.items():
-    t = t.replace("{{" + k + "}}", v)
-assert "{{" not in t, [x for x in t.split("{{")[1:]][:3]
-open(f"{HERE}/PAPER_DRAFT.md", "w").write(t)
-print({k: v for k, v in F.items() if not k.startswith("TABLE")})
+if __name__ == "__main__":
+    t = open(f"{HERE}/PAPER_DRAFT_template.md").read()
+    for k, v in F.items():
+        t = t.replace("{{" + k + "}}", v)
+    assert "{{" not in t, [x for x in t.split("{{")[1:]][:3]
+    open(f"{HERE}/PAPER_DRAFT.md", "w").write(t)
+    print({k: v for k, v in F.items() if not k.startswith("TABLE")})
