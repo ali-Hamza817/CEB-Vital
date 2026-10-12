@@ -1,0 +1,39 @@
+{
+ "LEACH (HSA)": {
+  "alive": 230,
+  "sensing": 230,
+  "chs": 30,
+  "cov": 0.7667,
+  "meanE": 0.04815573930900506
+ },
+ "ViTAL": {
+  "alive": 163,
+  "sensing": 163,
+  "chs": 0,
+  "cov": 0.6715,
+  "meanE": 0.14978542286537072
+ },
+ "EB-ViTAL": {
+  "alive": 300,
+  "sensing": 300,
+  "chs": 13,
+  "cov": 0.8496,
+  "meanE": 0.028380798185574225
+ },
+ "CEB-ViTAL": {
+  "alive": 300,
+  "sensing": 144,
+  "chs": 9,
+  "cov": 0.8085,
+  "meanE": 0.26876649826625026
+ },
+ "heat_min": 1.5898418782941848,
+ "heat_max": 140.36449350350702,
+ "sensing_mid": {
+  "LEACH (HSA)": 300.0,
+  "DEEC": 300.0,
+  "ViTAL": 281.3795,
+  "EB-ViTAL": 300.0,
+  "CEB-ViTAL": 147.673
+ }
+}
