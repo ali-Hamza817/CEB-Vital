@@ -1,6 +1,5 @@
 """Generates latex/numbers.tex, latex/tables/*.tex and copies figure PDFs, all from the run data."""
 import os
-import shutil
 
 import numpy as np
 from scipy.stats import wilcoxon
@@ -175,6 +174,4 @@ for sc in ("S1", "S3"):
 t.append("\\end{tabular}")
 open(f"{OUT}/tables/tab_rob.tex", "w").write("\n".join(t) + "\n")
 
-for f in ("F1_S1_main.pdf", "F3_S3.pdf", "F9_coverage_over_time_S1_N300.pdf", "F7_ablation_S1.pdf"):
-    shutil.copy(f"{ROOT}/figures/{f}", f"{OUT}/figures/{f}")
 print("macros:", {k: v for k, v in M.items()})

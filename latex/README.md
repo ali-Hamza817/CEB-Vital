@@ -5,7 +5,7 @@ The authors are Ali Hamza and Javed Iqbal. The document uses the IEEEtran journa
 ## VS Code (LaTeX Workshop)
 
 1. Reload the window once so the extension activates.
-2. Open `main.tex` and save it. The recipe in `../../.vscode/settings.json` builds the PDF and opens it in a tab. The recipe runs pdflatex, then bibtex, then pdflatex twice.
+2. Open `main.tex` and save it. The recipe in `../.vscode/settings.json` builds the PDF and opens it in a tab. The recipe runs pdflatex, then bibtex, then pdflatex twice.
 3. You can also build manually:
 
 ```bash

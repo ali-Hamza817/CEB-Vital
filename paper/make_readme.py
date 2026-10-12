@@ -12,51 +12,9 @@ from common import COMP, IDX, N3, NS, Q, ROOT, V1, best, gain, get, rng_
 sys.path.insert(0, ROOT)
 from ceb_sim import greedy_cds  # noqa: E402
 
-REPO = os.path.dirname(ROOT)
-REC = f"{REPO}/Ali2025_SciRep_ViTAL_WSN_Reproduction"
-rec = json.load(open(f"{REC}/results/runs.json"))
-ext = json.load(open(f"{REC}/results/extra.json"))
-pv = json.load(open(f"{REC}/paper_digitized/paper_values.json"))
 facts = json.load(open(f"{ROOT}/results/figure_facts.json"))
 X = dict(F)
-
-
-def rmean(proto, kind, N, L, mobile=False, key="FND"):
-    v = [r[key] for r in rec if r["protocol"] == proto and r["deploy"] == kind and r["N"] == N and r["L"] == L
-         and r.get("mobile", False) == mobile and r.get("wname") is None and r[key] is not None]
-    return float(np.mean(v))
-
-
-# ---- reproduction of the base paper
-X["REC_LEACH800"] = f"{rmean('LEACH', 'random', 100, 800):.0f}"
-X["REC_LEACH4000"] = f"{rmean('LEACH', 'random', 100, 4000):.0f}"
-X["REC_VITAL800"] = f"{rmean('ViTAL', 'hsa', 100, 800):.0f}"
-X["REC_VITAL4000"] = f"{rmean('ViTAL', 'hsa', 100, 4000):.0f}"
-X["PAPER_LEACH100"] = str(pv["static"]["FND"]["LEACH_random"][0])
-X["PAPER_VITAL100"] = str(pv["static"]["FND"]["ViTAL"][0])
-rel = []
-for L in (800, 4000):
-    for mob, base in ((False, ("LEACH", "random")), (True, ("LEACH", "hsa"))):
-        for N in NS:
-            rel.append(100 * (rmean("ViTAL", "hsa", N, L, mob) / rmean(*base, N, L, mob) - 1))
-X["REC_VITAL_VS_LEACH"] = rng_(rel)
-V = np.array(pv["static"]["FND"]["ViTAL"], float)
-B = np.array(pv["static"]["FND"]["LEACH_random"], float)
-X["PCT_V"] = f"{100*np.mean((V-B)/V):.1f}%"
-X["PCT_B"] = f"{100*np.mean((V-B)/B):+.0f}%"
-X["PCT_TEXT"] = f"{pv['text_claims_percent']['static_vs_random_baselines']['FND'][0]}%"
-scan = ext["scan"]
-combos = {(r["L"], r["Eelec"]) for r in scan}
-fit = 0
-for L, e in combos:
-    S = [r for r in scan if r["L"] == L and r["Eelec"] == e]
-    f_, l_ = np.mean([r["FND"] for r in S]), np.mean([r["LND"] for r in S])
-    fit += abs(f_ - 560) <= 140 and abs(l_ - 1180) <= 295 and S[0]["bound"] >= 3000
-X["SCAN_N"], X["SCAN_FIT"] = str(len(combos)), ("none" if fit == 0 else f"{fit} settings")
-S8 = [r for r in scan if r["L"] == 8000 and r["Eelec"] == 50e-9]
-X["SCAN8000_FND"] = f"{np.mean([r['FND'] for r in S8]):.0f}"
-X["SCAN8000_LND"] = f"{np.mean([r['LND'] for r in S8]):.0f}"
-X["SCAN8000_CAP"] = f"{S8[0]['bound']:.0f}"
+X["VITAL_VS_LEACH"] = rng_([gain(get("S1", "ViTAL", N, "FND"), get("S1", "LEACH (HSA)", N, "FND")) for N in NS])
 dep = dict(np.load(f"{ROOT}/results/test_deployments.npz"))
 X["CDS_SIZE"] = f"{np.mean([greedy_cds(dep[f'hsa_100_{N}_{s}'], np.ones(N, bool)).sum() for N in (100, 300, 500) for s in range(1000, 1010)]):.0f}"
 
@@ -105,5 +63,5 @@ for k, v in X.items():
     t = t.replace("{{" + k + "}}", v)
 left = re.findall(r"\{\{([A-Z0-9_]+)\}\}", t)
 assert not left, left
-open(f"{REPO}/README.md", "w").write(t)
+open(f"{ROOT}/README.md", "w").write(t)
 print({k: v for k, v in X.items() if not k.startswith("TABLE") and k != "LND_NOTE"})

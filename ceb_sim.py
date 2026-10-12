@@ -1,7 +1,7 @@
 """Simulator for the CEB-ViTAL study (continuation of ViTAL, Ali et al., Sci. Rep. 15:15400, 2025).
 
-Derived from ../EBViTAL_Novelty_on_Ali2025/wsn_sim.py. With side=100, bs0=(5,5) and sched=None
-every protocol reproduces that simulator bit-for-bit (checked in run_experiments.py).
+Derived from the EB-ViTAL v1 simulator. With side=100, bs0=(5,5) and sched=None every protocol
+reproduces the earlier runs stored in results/regress_*.json bit-for-bit (checked in run_experiments.py).
 
 Protocols (proto)
   LEACH, EE-LEACH*, I-LEACH*, 4F, ViTAL      as in the reconstruction

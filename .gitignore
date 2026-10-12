@@ -1,11 +1,8 @@
-# separate project (Mohamed et al. 2026 reproduction), not part of this repository
-Mohamed2026_SciRep_WSN_Clustering_Reproduction/
-
 # Python
 __pycache__/
 *.pyc
 
-# LaTeX build files
+# LaTeX build files (latex/main.pdf is kept)
 *.aux
 *.bbl
 *.blg
@@ -15,6 +12,3 @@ __pycache__/
 *.fdb_latexmk
 *.synctex.gz
 *.toc
-
-# build artefact (rebuild with the zip command in CEB-ViTAL_Paper/latex/README.md)
-CEB-ViTAL_Paper/CEB-ViTAL_Overleaf.zip

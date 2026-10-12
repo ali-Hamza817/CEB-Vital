@@ -8,7 +8,7 @@
 **Status:** research code and data for a manuscript in preparation
 **Base paper:** S. J. Ali, J. Iqbal, F. Khan, Y.-K. Moon, "Vigorous technique for augmented lifetime in WSNs," *Scientific Reports* 15, 15400 (2025). [doi:10.1038/s41598-025-96830-w](https://doi.org/10.1038/s41598-025-96830-w)
 
-![Network state of four protocols at the same round](CEB-ViTAL_Paper/figures/fig_snapshot.png)
+![Network state of four protocols at the same round](figures/fig_snapshot.png)
 
 *One held-out network with 300 nodes at round 5500. LEACH and ViTAL have already lost nodes, and EB-ViTAL's nodes are almost drained. CEB-ViTAL keeps every node alive while only about half of them sense at a time.*
 
@@ -43,7 +43,7 @@ Wireless sensor networks (WSNs) are only useful while they still **cover** the a
 
 This repository does four things:
 
-1. **Re-implements ViTAL** independently from its paper.
+1. **Re-implements ViTAL** from its paper, as a baseline inside a shared simulator.
 2. **Identifies gaps.** ViTAL's CH selection is almost insensitive to residual energy, favours CHs far from the sink, and overloads a small CDS backbone. In addition, the coverage it optimises at deployment is never used during operation.
 3. **Proposes CEB-ViTAL.** The new protocol keeps ViTAL's deployment and adds:
    - coverage-preserving, energy-weighted **sleep scheduling**;
@@ -105,28 +105,14 @@ The paper reports large gains over LEACH, EE-LEACH and I-LEACH in static and mob
 |---|---|---|---|
 | **G1** | The energy term divides a node's energy by the **network total**, so it is about $`1/N`$, while the other three terms are about 1. | CH selection is almost energy-blind: at $`N=100`$ with equal weights the energy term contributes ≈ 0.0025, against ≈ 0.25 for each other term. | A deterministic election using Eq. 20 unchanged drains the same nodes; first-node death falls by {{ABL_M1}}. |
 | **G2** | $`Dist/\overline{Dist}`$ grows with distance, so the score favours CHs **far** from the sink. The text intends the opposite. | With a corner sink, far CHs pay the $`d^4`$ amplifier cost. | — |
-| **G3** | CH candidates are restricted to the CDS, about {{CDS_SIZE}} nodes for any $`N`$. | The CH role concentrates on a small backbone, which dies first. | In our re-implementation, ViTAL's first-node death is {{REC_VITAL_VS_LEACH}} relative to LEACH and falls as $`N`$ grows. |
+| **G3** | CH candidates are restricted to the CDS, about {{CDS_SIZE}} nodes for any $`N`$. | The CH role concentrates on a small backbone, which dies first. | In the base setting (S1), ViTAL's first-node death is {{VITAL_VS_LEACH}} relative to LEACH and falls as $`N`$ grows. |
 | **G4** | Coverage is optimised at deployment and then ignored. | In dense deployments many nodes are redundant, yet all of them spend energy every round. | At $`N=500`$, nodes cover {{C0_S1_500}} of the field, so many sensing areas overlap. |
-
-### 4.2 Reproducibility observations
-
-These were found while re-implementing ViTAL from its text and are reported neutrally; each may be a typesetting or reporting slip. Details are in [`Ali2025_SciRep_ViTAL_WSN_Reproduction/REPORT.md`](Ali2025_SciRep_ViTAL_WSN_Reproduction/REPORT.md).
-
-- **Missing parameters.** No code or data are public. Several parameters needed to run ViTAL are not stated: $`E_{elec}`$, the CH probability $`p`$, the weights $`w_1`$–$`w_4`$, the SNR model and the CDS update rule.
-- **Packet size versus baseline numbers.** With the stated 800-bit packets, standard LEACH lives much longer than the paper's LEACH baseline. At $`N=100`$, first-node death is {{REC_LEACH800}} rounds in our simulation against {{PAPER_LEACH100}} in the paper. With 4000-bit packets it is {{REC_LEACH4000}}, and 8000-bit packets give FND {{SCAN8000_FND}} and LND {{SCAN8000_LND}}, close to the paper. That packet size, however, caps any node's life at {{SCAN8000_CAP}} rounds, below the reported ViTAL first-node death of {{PAPER_VITAL100}}.
-- **No setting fits everything.** In a {{SCAN_N}}-setting scan of packet size and $`E_{elec}`$, {{SCAN_FIT}} matched the paper's LEACH numbers and still allowed ViTAL's reported lifetimes.
-- **Percentage convention.** The headline percentages match $`(V-B)/V`$ computed from the paper's own figures: {{PCT_V}}, against the stated {{PCT_TEXT}} for first-node death vs LEACH. The usual convention, $`(V-B)/B`$, gives {{PCT_B}} from the same figure.
-- **Coverage target.** With $`R_s=5`$ m, 100 nodes can cover at most 78.5% of a 100 × 100 m field, so the stated 90% coverage target cannot be met at $`N=100`$.
-
-![Reproduction vs. paper](Ali2025_SciRep_ViTAL_WSN_Reproduction/figures/R2_static_L4000_vs_paper_fig6.png)
-
-*Top row: values digitised from the base paper's Fig. 6. Bottom row: our re-implementation with 4000-bit packets, 30 runs per point.*
 
 ---
 
 ## 5. Our contributions
 
-1. **Independent re-implementation of ViTAL.** Built from the published text, with every unstated choice pre-registered, and documented reproducibility observations (§4.2).
+1. **Re-implementation of ViTAL as a baseline.** It is built from the published text, with every unstated parameter fixed in advance.
 2. **Gap analysis of ViTAL's CH selection (G1–G4).** Each gap is supported by simulation evidence.
 3. **EB-ViTAL (v1).** Corrected clustering:
    - a normalised, direction-corrected four-factor score with a dynamic energy weight;
@@ -206,14 +192,14 @@ $$k=\mathrm{round}\Big(\sqrt{\tfrac{n}{2\pi}}\sqrt{\tfrac{\varepsilon_{fs}}{\var
 
 ### 6.3 Research path
 
-1. **Re-implementation of ViTAL** (`Ali2025_SciRep_ViTAL_WSN_Reproduction/`). This revealed G1–G4 and the observations in §4.2.
-2. **EB-ViTAL v1** (`EBViTAL_Novelty_on_Ali2025/`), development seeds only. Corrected clustering alone extended first-node death by {{V1_FND}} over LEACH. Because energy was so evenly balanced, the network then died abruptly: last-node death changed by {{V1_LND}} and readings by {{V1_READ}}. This weakness motivated v2.
+1. **Re-implementation of ViTAL.** Rebuilding ViTAL from its paper revealed G1–G4.
+2. **EB-ViTAL v1** (development seeds only; its runs are kept in `results/regress_ebvital_v1.json` for the fairness check). Corrected clustering alone extended first-node death by {{V1_FND}} over LEACH. Because energy was so evenly balanced, the network then died abruptly: last-node death changed by {{V1_LND}} and readings by {{V1_READ}}. This weakness motivated v2.
 3. **CEB-ViTAL v2** (`CEB-ViTAL_Paper/`). Coverage-preserving scheduling was added, and the design was frozen before evaluation on new, held-out networks.
 
 ### 6.4 Experimental design
 
 - **Fairness check.** All protocols share one round-based simulator: the same radio model, the same deployments and the same random streams. Before testing, the simulator reproduced 7,620 earlier runs **bit-for-bit**.
-- **Pre-registration.** Constants, scenarios, metrics and hypotheses were frozen in [`PREREGISTRATION_v2.md`](CEB-ViTAL_Paper/PREREGISTRATION_v2.md) before any test run.
+- **Pre-registration.** Constants, scenarios, metrics and hypotheses were frozen in [`PREREGISTRATION_v2.md`](PREREGISTRATION_v2.md) before any test run.
 - **Held-out test set.** All reported results use 30 networks with seeds 1000–1029, never used during development.
 - **Metrics.**
   - Primary: $`T_{90}`$.
@@ -244,7 +230,7 @@ $$k=\mathrm{round}\Big(\sqrt{\tfrac{n}{2\pi}}\sqrt{\tfrac{\varepsilon_{fs}}{\var
 
 {{TABLE_S1}}
 
-![S1 metrics](CEB-ViTAL_Paper/figures/fig_s1_metrics.png)
+![S1 metrics](figures/fig_s1_metrics.png)
 
 - **Coverage lifetime grows with density**, because more nodes are redundant. At $`N=300`$, CEB-ViTAL reaches $`T_{90}=`$ {{T90_CEB300}} rounds, against {{T90_BEST300}} for the strongest always-on protocol.
 - **Readings delivered** differ by {{ABS_READ_ALL}} from the always-on protocols, because sleeping nodes do not report.
@@ -258,11 +244,11 @@ All three hypotheses are supported in **all 20 comparisons**.
 
 ### 7.3 Why it works
 
-![Coverage over time](CEB-ViTAL_Paper/figures/fig_cov_time.png)
+![Coverage over time](figures/fig_cov_time.png)
 
 **Coverage over time, $`N=300`$.** CEB-ViTAL deliberately runs at about τ = 95% of the always-on coverage, and keeps that level roughly twice as long. Always-on protocols lose coverage as soon as nodes start dying.
 
-![Network dynamics](CEB-ViTAL_Paper/figures/fig_dynamics.png)
+![Network dynamics](figures/fig_dynamics.png)
 
 **Network dynamics, $`N=300`$, 10 networks.**
 
@@ -280,14 +266,14 @@ All three hypotheses are supported in **all 20 comparisons**.
 
 ### 7.4 All scenarios
 
-![T90 gain across scenarios](CEB-ViTAL_Paper/figures/fig_gain_heatmap.png)
+![T90 gain across scenarios](figures/fig_gain_heatmap.png)
 
 {{TABLE_CROSS}}
 
 - **Gains depend on redundancy.** In the sparse 200 m field (S3), 100 nodes cover only {{C0_S3_N100}} of the area, so the $`T_{90}`$ gain is {{ABS_S3_T90}}. In the 100 m field, 100 nodes cover {{C0_S1_100}} and 500 nodes cover {{C0_S1_500}}.
 - **Other settings.** The mobile sink (S5) and 4000-bit packets (S6) reproduce the S1 pattern.
 
-![S3 metrics](CEB-ViTAL_Paper/figures/fig_s3_metrics.png)
+![S3 metrics](figures/fig_s3_metrics.png)
 
 ### 7.5 Ablation
 
@@ -332,28 +318,18 @@ The radio model treats sleep as free. This check, which was not pre-registered, 
 
 ```
 .
-├── README.md                                  # this file (generated)
-├── Ali2025_SciRep_ViTAL_WSN_Reproduction/     # step 1: re-implementation of ViTAL
-│   ├── PREREGISTRATION.md                     #   assumptions fixed before running
-│   ├── vital_repro.py                         #   simulator (LEACH, EE-LEACH*, I-LEACH*, 4F, ViTAL)
-│   ├── run_experiments.py, extra_experiments.py, analyze.py
-│   ├── paper_digitized/paper_values.json      #   values read from the paper's figures
-│   ├── results/, figures/                     #   raw runs, summary tables, plots
-│   └── REPORT.md                              #   reproduction report
-├── EBViTAL_Novelty_on_Ali2025/                # step 2: EB-ViTAL v1
-│   ├── DESIGN_AND_PREREGISTRATION.md, wsn_sim.py, run_experiments.py, analyze.py
-│   ├── results/, figures/
-│   └── PROPOSAL_AND_RESULTS.md
-└── CEB-ViTAL_Paper/                           # step 3: CEB-ViTAL (main contribution)
-    ├── PREREGISTRATION_v2.md                  #   frozen design, hypotheses, tests
-    ├── ceb_sim.py                             #   simulator (all protocols, CovSched, RandSleep)
-    ├── run_experiments.py                     #   fairness gate + 6,900 held-out runs
-    ├── robustness_sleep_cost.py               #   post-hoc sleep-energy check
-    ├── analyze.py                             #   statistics, tables, figures
-    ├── results/                               #   raw runs (JSON), deployments, tables (CSV/LaTeX)
-    ├── figures/                               #   all figures (PNG/PDF)
-    ├── paper/                                 #   builders for the draft, LaTeX assets and this README
-    └── latex/                                 #   IEEEtran manuscript (main.tex, refs.bib, figures, tables)
+├── README.md                     # this file (generated by paper/make_readme.py)
+├── CEB-ViTAL_Overleaf.zip        # ready-to-upload Overleaf project of the manuscript
+├── PREREGISTRATION_v2.md         # frozen design, hypotheses and tests
+├── ceb_sim.py                    # simulator: LEACH, DEEC, ViTAL, EB-ViTAL, CEB-ViTAL, CovSched, RandSleep
+├── run_experiments.py            # fairness gate + 6,900 held-out test runs
+├── robustness_sleep_cost.py      # post-hoc sleep-energy check
+├── analyze.py                    # statistics, tables, figures
+├── results/                      # raw runs (JSON), deployments, summary, CSV/LaTeX tables,
+│                                 #   regression baselines for the fairness gate
+├── figures/                      # all figures (PNG and PDF)
+├── paper/                        # builders: LaTeX macros/tables, paper figures, draft, this README
+└── latex/                        # IEEEtran manuscript: main.tex, refs.bib, numbers*.tex, tables/, figures/
 ```
 
 ---
@@ -363,7 +339,6 @@ The radio model treats sleep as free. This check, which was not pre-registered, 
 **Requirements.** Python ≥ 3.10 with `numpy`, `scipy` and `matplotlib`, plus `pdflatex` and `bibtex` for the manuscript. A multi-core machine is recommended: the full study takes about one hour on 64 cores.
 
 ```bash
-cd CEB-ViTAL_Paper
 python3 ceb_sim.py                  # self-checks
 python3 run_experiments.py          # fairness gate (7,620 runs) + 6,900 test runs
 python3 robustness_sleep_cost.py    # post-hoc sleep-energy check ({{NROB}} runs)
@@ -385,9 +360,9 @@ All randomness is seeded, so the same commands reproduce the same numbers.
 
 ## 11. Manuscript
 
-The IEEEtran manuscript is in [`CEB-ViTAL_Paper/latex/`](CEB-ViTAL_Paper/latex/), and a compiled PDF is at [`latex/main.pdf`](CEB-ViTAL_Paper/latex/main.pdf). Its tables and numbers are `\input` from generated files, so the manuscript always matches the data.
+The IEEEtran manuscript is in [`latex/`](latex/), and a compiled PDF is at [`latex/main.pdf`](latex/main.pdf). Its tables and numbers are `\input` from generated files, so the manuscript always matches the data.
 
-- **Overleaf.** Upload the `latex/` folder as a zip.
+- **Overleaf.** Download [`CEB-ViTAL_Overleaf.zip`](CEB-ViTAL_Overleaf.zip). In Overleaf, choose **New Project → Upload Project**, select the zip, and set `main.tex` as the main document. The zip contains everything needed to compile: the IEEEtran class, the algorithm packages, figures, tables and the bibliography.
 - **VS Code.** With LaTeX Workshop, the build recipe in `.vscode/settings.json` compiles it on save.
 
 ---
